@@ -1,24 +1,17 @@
-const Express = require('express');
-const BodyParser = require('body-parser');
+const router = require('express').Router();
 const Mongoose = require('mongoose');
-const { response } = require('express');
-
-const app = Express();
 
 Mongoose.connect('mongodb://localhost/recipe', {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 });
 
-app.use(BodyParser.json());
-app.use(BodyParser.urlencoded({ extended: true }));
-
 const RecipeModel = Mongoose.model('recipe', {
 	recipeName: String,
 	recipeURL: String,
 });
 
-app.post('/recipe', async (req, res) => {
+router.post('/recipe', async (req, res) => {
 	try {
 		const recipe = new RecipeModel(req.body);
 		const result = await recipe.save();
@@ -28,7 +21,7 @@ app.post('/recipe', async (req, res) => {
 	}
 });
 
-app.get('/recipes', async (req, res) => {
+router.get('/recipes', async (req, res) => {
 	try {
 		const result = await RecipeModel.find().exec();
 		res.send(result);
@@ -37,7 +30,7 @@ app.get('/recipes', async (req, res) => {
 	}
 });
 
-app.get('/recipes/:id', async (req, res) => {
+router.get('/recipes/:id', async (req, res) => {
 	try {
 		const recipe = await RecipeModel.findById(req.params.id).exec();
 		res.send(recipe);
@@ -46,7 +39,7 @@ app.get('/recipes/:id', async (req, res) => {
 	}
 });
 
-app.put('/recipe/:id', async (req, res) => {
+router.put('/recipe/:id', async (req, res) => {
 	try {
 		const recipe = await RecipeModel.findById(req.params.id).exec();
 		recipe.set(req.body);
@@ -57,7 +50,7 @@ app.put('/recipe/:id', async (req, res) => {
 	}
 });
 
-app.delete('/recipe/:id', async (req, res) => {
+router.delete('/recipe/:id', async (req, res) => {
 	try {
 		const result = await RecipeModel.deleteOne({ _id: req.params.id }).exec();
 		res.send(result);
@@ -66,6 +59,4 @@ app.delete('/recipe/:id', async (req, res) => {
 	}
 });
 
-app.listen(3000, () => {
-	console.log('Listening at :3000....');
-});
+module.exports = router;
